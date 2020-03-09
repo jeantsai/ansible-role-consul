@@ -1,0 +1,13 @@
+---
+# This task should run once for all hosts
+
+- name: Check existing CA certs
+  stat:
+    path: "{{ consul_cert_dir }}/{{ consul_ca_cert_file }}"
+  become: yes
+  become_user: root
+  register: ca_cert
+
+- import_tasks: tls/gen_ca_certs.yml
+  when: not ca_cert.stat.exists or override_ca_cert
+

@@ -1,0 +1,49 @@
+---
+- name: Sync up IP addresses of all Consul servers
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*{{ item }}$'
+    line: "{{ hostvars[ item ].ansible_eth0.ipv4.address }} {{ hostvars[ item ][ 'ansible_fqdn' ] }}"
+    state: present
+  become: true
+  become_user: root
+  with_items: "{{ groups[ 'consul_server' ] }}"
+ 
+- name: Install dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - curl
+  - iproute
+  - unzip
+  become: true
+  become_user: root
+
+
+- name: Check existing consul
+  stat:
+    path: "{{ consul_bin_dir }}/consul"
+  become: yes
+  become_user: root
+  register: consul_binary
+ 
+- name: Install Consul
+  unarchive:
+    src: https://releases.hashicorp.com/consul/1.7.1/consul_1.7.1_linux_amd64.zip
+    dest: "{{ consul_bin_dir }}"
+    remote_src: yes
+  become: true
+  become_user: root
+  throttle: 1
+  when: not consul_binary.stat.exists
+ 
+- name: Verify Consul Installation
+  shell: "consul --version"
+  register: consul_version
+  when: not consul_binary.stat.exists
+
+- assert:
+    that:
+    - "'Consul' in consul_version.stdout"
+  when: not consul_binary.stat.exists

@@ -1,0 +1,22 @@
+- name: Clear temp ca certs
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+  - "{{ consul_ca_cert_file }}"
+  - "{{ consul_ca_key_file }}"
+
+- name: Generate ca certs
+  shell: "consul tls ca create -days=3650"
+
+- name: Save ca certs
+  fetch:
+    src: "{{ ansible_user_dir }}/{{ item }}"
+    dest: cache/certs/
+    flat: yes
+  loop:
+  - "{{ consul_ca_cert_file }}"
+  - "{{ consul_ca_key_file }}"
+
+- import_tasks: clear_temp_ca_certs.yml
+

@@ -1,0 +1,17 @@
+---
+- name: Install ACL python dependencies
+  pip:
+    extra_args: --user
+    name:
+    - python-consul
+    - pyhcl
+    - requests
+
+- name: Create agent tokens
+  consul_acl:
+    mgmt_token: '662dfc7d-4cf7-fcd1-4752-6bb091a25d56'
+    name: "{{ item }}"
+    rules:
+      - node: "{{ item }}"
+        policy: write
+  loop: "{{ groups[ 'consul_server' ] }}"

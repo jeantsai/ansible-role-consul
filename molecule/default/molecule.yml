@@ -1,0 +1,89 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - &consul_server
+    name: consul-server-1
+    # image: docker.io/pycontribs/centos:7
+    image: centos:7
+    dockerfile: Dockerfile.j2
+    # pull: True|False
+    pre_build_image: false
+    # registry:
+    #   url: registry.example.com
+    #   credentials:
+    #     username: $USERNAME
+    #     password: $PASSWORD
+    #     email: user@example.com
+    #     user: root
+    # override_command: True|False
+    # command: sleep infinity
+    # tty: True|False
+    # pid_mode: host
+    # privileged: True|False
+    # security_opts:
+    #   - seccomp=unconfined
+    # devices:
+    #   - /dev/fuse:/dev/fuse:rwm
+    # volumes:
+    #   - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    # keep_volumes: True|False
+    # tmpfs:
+    #   - /tmp
+    #   - /run
+    # capabilities:
+    #   - SYS_ADMIN
+    # sysctls:
+    #   net.core.somaxconn: 1024
+    #   net.ipv4.tcp_syncookies: 0
+    # exposed_ports:
+    #   - 53/udp
+    #   - 53/tcp
+    # published_ports:
+    #   - 0.0.0.0:8053:53/udp
+    #   - 0.0.0.0:8053:53/tcp
+    # ulimits:
+    #   - nofile:262144:262144
+    # dns_servers:
+    #   - 8.8.8.8
+    # etc_hosts: "{'host1.example.com': '10.3.1.5'}"
+    # networks:
+    #   - name: foo
+    #   - name: bar
+    # network_mode: host
+    # purge_networks: true
+    # docker_host: tcp://localhost:12376
+    # cacert_path: /foo/bar/ca.pem
+    # cert_path: /foo/bar/cert.pem
+    # key_path: /foo/bar/key.pem
+    # tls_verify: true
+    # env:
+    #   FOO: bar
+    # restart_policy: on-failure
+    # restart_retries: 1
+    # buildargs:
+    #     http_proxy: http://proxy.example.com:8080/
+    groups:
+    - consul_server
+  - <<: *consul_server
+    name: consul-server-2
+  - <<: *consul_server
+    name: consul-server-3
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      gathering: smart
+      fact_caching: jsonfile
+      fact_caching_connection: tmp/fact_cache
+      fact_caching_timeout: 86400
+    ssh_connection:
+      scp_if_ssh: True
+  inventory:
+    group_vars:
+      all:
+        ansible_user: ansible
+verifier:
+  name: ansible

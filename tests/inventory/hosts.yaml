@@ -1,0 +1,13 @@
+all:
+  children:
+    consul_server:
+      hosts:
+        consul-server-1:
+          ansible_user: centos
+          ansible_host: 192.168.100.1
+        consul-server-2:
+          ansible_user: centos
+          ansible_host: 192.168.100.2
+        consul-server-3:
+          ansible_user: centos
+          ansible_host: 192.168.100.3

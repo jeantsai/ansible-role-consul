@@ -1,0 +1,39 @@
+- name: Get ca certs
+  copy:
+    src: cache/certs/{{ item }}
+    dest: "{{ item }}"
+    mode: '0640'
+    force: yes
+  loop:
+  - "{{ consul_ca_cert_file }}"
+  - "{{ consul_ca_key_file }}"
+
+
+- name: Clear temp server certs
+  shell: "rm -f {{ consul_datacenter }}-server-{{ consul_domain }}-*"
+  args:
+    warn: no
+
+- name: Generate server certs
+  shell: "consul tls cert create -server -days=3650 -dc={{ consul_datacenter }} -domain={{ consul_domain }}"
+  loop: "{{ groups.consul_server }}"
+
+# - name: Store server certs
+#   fetch:
+#     src: "dc1-server-consul-{{ server_idx }}.pem"
+#     dest: cache/certs/
+#     flat: yes
+#   loop: "{{ groups.consul_server }}"
+#   loop_control:
+#     index_var: server_idx
+
+# - name: Store server cert key files
+#   fetch:
+#     src: "dc1-server-consul-{{ server_idx }}-key.pem"
+#     dest: cache/certs/
+#     flat: yes
+#   loop: "{{ groups.consul_server }}"
+#   loop_control:
+#     index_var: server_idx
+
+

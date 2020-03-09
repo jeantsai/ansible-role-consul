@@ -1,0 +1,41 @@
+{
+  "datacenter": "{{ consul_datacenter }}",
+  "domain": "{{ consul_domain }}",
+  "server": true,
+  "data_dir": "{{ consul_data_dir }}",
+  "log_level": "INFO",
+  "leave_on_terminate": true,
+
+  "bootstrap_expect": {{ groups[ 'consul_server' ] | length }},
+  "retry_join": [
+{% for server in groups.consul_server %}
+    "{{ hostvars[ server ][ 'ansible_fqdn' ] }}"{% if not loop.last %},{% endif %}
+
+{% endfor %}  
+  ],
+  "bind_addr": "{{ ansible_eth0.ipv4.address }}",
+  "client_addr": "{{ ansible_eth0.ipv4.address }}",
+  "addresses": {
+    "http": "127.0.0.1",
+    "https": "{{ ansible_eth0.ipv4.address }}"
+  },
+  "ports": {
+    "http": 8500,
+    "https": 8501
+  },
+
+  {# "verify_incoming": true, #}
+  {# "verify_outgoing": true, #}
+  {# "verify_server_hostname": true, #}
+  "ca_file": "{{ consul_cert_dir }}/{{ consul_ca_cert_file }}",
+  "key_file": "{{ consul_cert_dir }}/{{ consul_server_key_file }}",
+  "cert_file": "{{ consul_cert_dir }}/{{ consul_server_cert_file }}",
+
+  "acl": {
+    "enabled": true,
+    "default_policy": "deny",
+    "enable_token_persistence": true
+  },
+
+  "ui": true
+}

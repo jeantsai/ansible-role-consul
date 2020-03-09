@@ -1,0 +1,19 @@
+---
+- name: Get hostname
+  shell: "hostname"
+  # register: current_hostname
+
+# - debug:
+#     # var: current_hostname
+#     msg: "Current hostname is {{ current_hostname.stdout }}"
+#     # var: ansible_facts
+
+# - debug:
+#     msg: "Current ansible_hostname is {{ ansible_hostname }}"
+
+# - name: Sync up hostnames
+#   hostname:
+#     name: "{{ ansible_facts.fqdn }}"
+#   become: true
+#   become_user: root
+#   run_once: true

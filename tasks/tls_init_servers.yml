@@ -1,0 +1,20 @@
+---
+# This task should run only once each host
+
+- name: Check existing server cert
+  stat:
+    path: "{{ consul_cert_dir }}/{{ consul_server_cert_file }}"
+  become: yes
+  become_user: root
+  register: server_cert
+
+- import_tasks: tls/gen_server_certs.yml
+  when: not server_cert.stat.exists or override_server_certs
+
+- import_tasks: tls/update_certs_all.yml
+  become: true
+  become_user: root
+  when: not server_cert.stat.exists or override_server_certs
+
+- import_tasks: tls/clear_temp_certs_all.yml
+  when: not server_cert.stat.exists or override_server_certs

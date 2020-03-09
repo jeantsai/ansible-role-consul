@@ -1,0 +1,5 @@
+---
+- hosts: consul_server
+  roles:
+    - ansible-role-consul
+  

@@ -1,0 +1,6 @@
+- include_tasks: clear_temp_ca_certs.yml
+
+- name: Clear temp server certs
+  shell: "rm -f {{ consul_datacenter }}-server-{{ consul_domain }}-*"
+  args:
+    warn: no

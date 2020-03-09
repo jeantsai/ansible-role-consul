@@ -1,0 +1,54 @@
+- name: Create consul group
+  group:
+    name: "{{ consul_group }}"
+    state: present
+  become: true
+  become_user: root
+
+- name: Create consul user
+  user:
+    name: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    system: yes
+    shell: /sbin/nologin
+  become: true
+  become_user: root
+
+- name: Create consul directories
+  file:
+    path: "{{ item }}"
+    mode: 0750
+    state: directory
+    owner: "{{ consul_user }}" 
+    group: "{{ consul_group }}"
+  with_items:
+    - "{{ consul_conf_dir }}"
+    - "{{ consul_data_dir }}"
+  become: true
+  become_user: root
+
+- name: Set Consul as a SystemD service
+  template:
+    src: consul_systemd.service.j2
+    dest: /usr/lib/systemd/system/consul.service
+    owner: root
+    group: root
+  become: true
+  become_user: root
+
+- name: Render Consul Configuration Files
+  template:
+    src: consul_server_config.json.j2
+    dest: "{{ consul_conf_dir }}/conf.json"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+  become: true
+  become_user: root
+  # notify:
+  #   - restart consul
+
+- name: Validate Consul Configuration Files
+  shell: "{{ consul_bin_dir }}/consul validate {{ consul_conf_dir }}"
+  become: true
+  become_user: root
+

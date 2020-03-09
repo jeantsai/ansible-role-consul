@@ -1,0 +1,37 @@
+- name: Create consul cert dir if needed
+  file:
+    path: "{{ consul_cert_dir }}/"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: '750'
+    state: directory
+
+- name: Push ca certs
+  shell: "cp -b -f {{ consul_ca_cert_file }} {{ consul_cert_dir }}/"
+
+- name: Secure cd certs
+  file:
+    path: "{{ consul_cert_dir }}/consul-agent-ca.pem"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: '640'
+    state: file
+
+- name: Push server certs
+  shell: "cp -b -f {{ item }} {{ consul_cert_dir }}/"
+  loop:
+  - "{{ consul_server_cert_file }}"
+  - "{{ consul_server_key_file }}"
+
+- name: Secure server certs
+  file:
+    path: "{{ consul_cert_dir }}/{{ item }}"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: '640'
+    state: file
+  loop:
+  - "{{ consul_server_cert_file }}"
+  - "{{ consul_server_key_file }}"
+
+

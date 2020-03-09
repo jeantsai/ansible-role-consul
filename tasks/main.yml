@@ -1,0 +1,31 @@
+---
+- import_tasks: common.yml
+  tags:
+  - common
+
+- import_tasks: install.yml
+  tags:
+  - install
+
+- import_tasks: config.yml
+  tags:
+  - config
+
+- import_tasks: tls_init_ca.yml
+  tags:
+  - tls_init_ca
+  run_once: yes
+
+- import_tasks: tls_init_servers.yml
+  tags:
+  - tls_init_servers
+
+- import_tasks: start.yml
+  tags:
+  - start
+
+- import_tasks: acl_init.yml
+  tags:
+  - never
+  - acl
+  

@@ -1,0 +1,36 @@
+[Unit]
+Description=Consul agent
+Requires=network-online.target
+After=network-online.target
+ConditionDirectoryNotEmpty={{ consul_cert_dir }}
+ 
+[Service]
+Type=notify
+User={{ consul_user }}
+Group={{ consul_group }}
+PermissionsStartOnly=true
+{% for var in consul_env_vars %}
+Environment={{ var }}
+{% endfor %}
+PIDFile={{ consul_run_dir }}/consul.pid
+Restart=on-failure
+ExecStartPre=/bin/mkdir -m 0750 -p {{ consul_run_dir }}
+ExecStartPre=/bin/chown -R {{ consul_user }}:{{ consul_group }} {{ consul_run_dir }}
+ExecStartPre={{ consul_bin_dir }}/consul validate {{ consul_conf_dir }}
+ExecStart={{ consul_bin_dir }}/consul agent \
+    -config-dir={{ consul_conf_dir }} \
+    -pid-file={{ consul_run_dir }}/consul.pid
+ExecReload={{ consul_bin_dir }}/consul reload
+KillSignal=SIGTERM
+RestartSec={{ consul_systemd_restart_sec }}s
+# CapabilityBoundingSet=CAP_NET_BIND_SERVICE  -- for privilege to bind port number below 1024
+# LimitNOFILE=
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+
+
