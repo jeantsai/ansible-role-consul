@@ -1,6 +1,6 @@
 galaxy_info:
   author: Jean Tsai
-  description: Ansible role for Consul
+  description: Ansible role for Consul with TLS and ACL enabled
   company:
 
   # If the issue tracker for your role is not on github, uncomment the
